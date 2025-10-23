@@ -1,0 +1,72 @@
+
+services:
+
+  # --- Serviço do Banco de Dados (Postgres) ---
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tarefasdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tarefasdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # --- FIM DO NOVO BLOCO ---
+
+    networks:
+      - app-network
+
+  # --- Serviço do Backend (Nossa API) ---
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: tarefasdb
+      PORT: 3001
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - app-network
+
+  # --- Serviço do Frontend (React + Nginx) ---
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    # O frontend ainda pode depender do backend da forma simples
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# --- Definição de Volumes ---
+volumes:
+  postgres_data:
+    driver: local
+
+# --- Definição de Redes ---
+networks:
+  app-network:
+    driver: bridge
