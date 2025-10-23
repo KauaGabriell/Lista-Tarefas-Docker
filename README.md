@@ -8,7 +8,7 @@
 ## 👥 Integrantes
 
 - **Nome:** Kauã Gabriel  
-- **RA:** [Seu RA aqui]
+- **RA:** 2411070
 
 - **Nome:** Pedro Gabriel Dezani Dantas  
 - **RA:** 2411622
