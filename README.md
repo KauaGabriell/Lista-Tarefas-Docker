@@ -7,11 +7,11 @@
 
 ## 👥 Integrantes
 
-- **Nome:** Kauã Gabriell Nazário de Azevedo  
-- **RA:** 2411070
-- **Nome:** Pedro Gabriel Dezani Dantas
-- **RA:** 2411622
+- **Nome:** Kauã Gabriel  
+- **RA:** [Seu RA aqui]
 
+- **Nome:** Pedro Gabriel Dezani Dantas  
+- **RA:** 2411622
 
 ---
 
@@ -32,7 +32,7 @@ A aplicação é composta por:
 ┌─────────────────┐      HTTP      ┌─────────────────┐
 │                 │ ───────────────>│                 │
 │    Frontend     │                 │     Backend     │
-│  (Nginx:80)     │ <───────────────│  (Node.js:3000) │
+│  (Nginx:3000)   │ <───────────────│  (Node.js:5000) │
 │                 │                 │                 │
 └─────────────────┘                 └────────┬────────┘
                                              │
@@ -48,11 +48,11 @@ A aplicação é composta por:
 
 | Container | Imagem Base | Porta | Exposição | Descrição |
 |-----------|-------------|-------|-----------|-----------|
-| `frontend` | nginx:alpine | 80 | Externa | Serve os arquivos estáticos da interface |
-| `backend` | node:18-alpine | 3000 | Externa | API RESTful para gerenciamento de tarefas |
+| `frontend` | nginx:alpine | 3000 | Externa | Serve os arquivos estáticos da interface |
+| `backend` | node:18-alpine | 5000 | Interna | API RESTful para gerenciamento de tarefas |
 | `postgres` | postgres:15-alpine | 5432 | **Interna** | Banco de dados relacional |
 
-> **🔒 Nota de Segurança:** A porta 5432 do PostgreSQL **não é exposta externamente**. O banco de dados é acessível apenas internamente pela rede Docker, garantindo que apenas os containers `backend` possam se comunicar com ele.
+> **🔒 Nota de Segurança:** As portas 5000 (backend) e 5432 (PostgreSQL) **não são expostas externamente**. O banco de dados é acessível apenas internamente pela rede Docker, e o backend só se comunica com o frontend através da rede interna.
 
 ---
 
@@ -84,7 +84,7 @@ Certifique-se de ter instalado em sua máquina:
 
 3. **Acesse a aplicação:**
    
-   Abra seu navegador e acesse: **http://localhost**
+   Abra seu navegador e acesse: **http://localhost:3000**
 
 4. **Para encerrar a aplicação:**
    ```bash
@@ -176,21 +176,22 @@ Os containers se comunicam através de uma **rede bridge** customizada chamada `
 ### 🔐 Segurança
 
 **Portas Expostas:**
-- ✅ **Frontend (80):** Exposta para acesso público
-- ✅ **Backend (3000):** Exposta para o frontend consumir a API
-- 🔒 **PostgreSQL (5432):** **NÃO exposta externamente** - apenas acessível dentro da rede Docker
+- ✅ **Frontend (3000):** Exposta para acesso público - interface do usuário
+- 🔒 **Backend (5000):** **NÃO exposta externamente** - apenas acessível pelo frontend via rede Docker
+- 🔒 **PostgreSQL (5432):** **NÃO exposta externamente** - apenas acessível pelo backend via rede Docker
 
 **Boas Práticas Implementadas:**
-- Banco de dados isolado na rede interna
+- Banco de dados completamente isolado na rede interna
+- Backend isolado, acessível apenas pelo frontend
 - Comunicação entre containers via DNS interno
-- Apenas serviços necessários expostos ao host
+- Apenas a interface do usuário (frontend) está exposta ao host
 
 > **⚠️ Observação:** Este projeto é configurado para ambiente de **desenvolvimento/acadêmico**. Em um ambiente de **produção**, seria necessário:
 > - Utilizar secrets/variáveis de ambiente seguras
 > - Implementar HTTPS com certificados SSL
 > - Configurar firewall e políticas de rede mais restritivas
 > - Usar autenticação e autorização robustas
-> - Não expor a porta do backend diretamente (usar reverse proxy)
+> - Implementar rate limiting e proteção contra ataques
 
 ---
 
